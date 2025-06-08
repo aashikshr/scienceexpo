@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Voting Leaderboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .candidate-list {
+            list-style: none;
+            padding: 0;
+        }
+        .candidate {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .candidate:last-child {
+            border-bottom: none;
+        }
+        .vote-btn {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+        .vote-btn:hover {
+            background: #0056b3;
+        }
+        .standings {
+            margin-top: 30px;
+        }
+        .standings h2 {
+            margin-bottom: 10px;
+            color: #444;
+        }
+        .standings-list {
+            list-style: none;
+            padding: 0;
+        }
+        .standings-list li {
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .standings-list li:first-child {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Online Voting System</h1>
+        <ul class="candidate-list" id="candidateList">
+            <!-- Candidates will be rendered here -->
+        </ul>
+        <div class="standings">
+            <h2>Leaderboard</h2>
+            <ul class="standings-list" id="standingsList">
+                <!-- Standings will be rendered here -->
+            </ul>
+        </div>
+    </div>
+    <script>
+        // Candidate data
+        let candidates = [
+            { name: "Alice", votes: 0 },
+            { name: "Bob", votes: 0 },
+            { name: "Charlie", votes: 0 }
+        ];
+
+        // Render candidate voting buttons
+        function renderCandidates() {
+            const list = document.getElementById('candidateList');
+            list.innerHTML = '';
+            candidates.forEach((candidate, idx) => {
+                const li = document.createElement('li');
+                li.className = 'candidate';
+                li.innerHTML = `
+                    <span>${candidate.name}</span>
+                    <button class="vote-btn" onclick="vote(${idx})">Vote</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Render leaderboard standings
+        function renderStandings() {
+            const standings = [...candidates].sort((a, b) => b.votes - a.votes);
+            const list = document.getElementById('standingsList');
+            list.innerHTML = '';
+            standings.forEach((candidate, idx) => {
+                const li = document.createElement('li');
+                li.textContent = `${candidate.name}: ${candidate.votes} vote${candidate.votes !== 1 ? 's' : ''}`;
+                list.appendChild(li);
+            });
+        }
+
+        // Voting function
+        window.vote = function(idx) {
+            candidates[idx].votes += 1;
+            renderStandings();
+        };
+
+        // Initial render
+        renderCandidates();
+        renderStandings();
+    </script>
+</body>
+</html>

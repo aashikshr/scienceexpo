@@ -1,0 +1,37 @@
+/*i dont know about body it was done by chatgpt*/
+body {
+  margin: 0;
+  padding: 40px 0; /* some vertical spacing */
+  display: flex;
+  justify-content: center; /* center horizontally only */
+  background: #f0f0f0;
+}
+
+/*i know from here*/
+.map-container {
+    position: relative;
+    display: inline-block;
+}
+
+.marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+}
+
+.marker:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}

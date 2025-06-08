@@ -1,0 +1,50 @@
+*{
+    text-decoration: none;
+}
+.navbar{
+    background:crimson; font-family: Calibri; padding-right: 15px;padding-left: 15px;
+}
+.main{
+    display:flex; 
+    align-items:center;
+    justify-content: space-between;
+}
+.logo a{
+    font-size: 50px; color:white;
+}
+li{
+    list-style: none;
+    display:inline-block;
+
+}
+li a{
+    color:white;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right:25px;
+}
+.logo-wraper{
+    display: flex;
+    justify-items: center;
+    align-items: center;
+
+}
+.nice{
+    width:1500px;
+    height:1500px;
+    display: block;
+}
+button{
+    background-color: black;
+    padding:15px;
+    width:90px;
+    margin-left:10px;
+    margin-right:25px;
+    border-radius:10px;
+
+}
+button a{
+    color:white;
+    font-weight: bold;
+    font-size:15px;
+}
