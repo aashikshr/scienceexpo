@@ -4,54 +4,158 @@
   <meta charset="UTF-8">
   <title>Admin Panel - Science Expo Voting</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Use your signin.css for consistent styling -->
+  <link rel="stylesheet" href="signin.css">
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; }
-    .hidden { display: none; }
-    #admin-content { margin-top: 2rem; }
-    table, th, td { border: 1px solid #aaa; border-collapse: collapse; padding: 0.5rem; }
-    th, td { text-align: left; }
-    .btn { margin: 0 0.25rem; }
-    .section { margin-top: 2rem; }
-    .success { color: green; }
-    .error { color: red; }
-    .small { font-size: 0.9em; color: #555; }
+    body {
+      background: #f4f4f4;
+      font-family: Calibri, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+    .container {
+      margin: auto;
+      width: 420px;
+      max-width: 96vw;
+      border-radius: 8px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.13);
+      background: #fff;
+      padding: 32px 24px 36px 24px;
+    }
+    h1 {
+      color: #dc143c;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 28px;
+      letter-spacing: 2px;
+      font-weight: bold;
+    }
+    h2 {
+      color:#222;
+      text-align:center;
+      margin: 24px 0 16px 0;
+      font-size: 1.3em;
+    }
+    .admin-form-label {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 4px;
+      margin-top: 12px;
+      display: block;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 14px;
+      margin-top: 10px;
+    }
+    .admin-table th, .admin-table td {
+      border: 1px solid #eee;
+      padding: 0.5em 0.2em;
+      text-align: left;
+      font-size: 1em;
+    }
+    .admin-table th {
+      background: #f6c4cb;
+      color: #b2001e;
+      font-weight: bold;
+    }
+    .admin-table tr:nth-child(even) {
+      background: #faf8fb;
+    }
+    .btn, .btn-delete {
+      background: #dc143c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 7px 16px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      margin: 2px 2px;
+      transition: background 0.18s;
+    }
+    .btn:hover, .btn-delete:hover {
+      background: #a2001a;
+    }
+    .btn-delete {
+      background: #222;
+    }
+    .logout-link {
+      display: block;
+      text-align: right;
+      font-size: 1em;
+      text-decoration: underline;
+      color: #dc143c;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .success { color: green; margin-top: 8px;}
+    .error { color: #dc143c; margin-top: 8px;}
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      height: 40px;
+      border-radius: 4px;
+      border: 1px solid silver;
+      margin: 10px 0 18px 0;
+      padding: 0 10px;
+      font-size: 1em;
+      background: #fafafa;
+      transition: border 0.2s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      border: 1.5px solid #dc143c;
+      outline: none;
+      background: #fff;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 14px 2vw 20px 2vw; }
+      .admin-table, .admin-table th, .admin-table td { font-size: 0.93em; }
+    }
   </style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
-  <div id="login-section">
-    <input type="password" id="admin-password" placeholder="Enter admin password">
-    <button onclick="login()">Login</button>
-    <p id="login-error" class="error"></p>
-  </div>
-  <div id="admin-content" class="hidden">
-    <!-- Candidate Management -->
-    <div class="section">
-      <h2>Candidates</h2>
-      <table id="candidates-table">
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <!-- Login Form -->
+    <div id="login-section">
+      <form onsubmit="login(); return false;">
+        <label class="admin-form-label" for="admin-username">Username</label>
+        <input type="text" id="admin-username" placeholder="Admin Username" autocomplete="username" required>
+        <label class="admin-form-label" for="admin-password">Password</label>
+        <input type="password" id="admin-password" placeholder="Admin Password" autocomplete="current-password" required>
+        <input type="submit" class="btn" value="Login">
+        <div id="login-error" class="error"></div>
+      </form>
+    </div>
+    <!-- Protected admin area -->
+    <div id="admin-content" style="display:none;">
+      <span class="logout-link" onclick="logout()">Logout</span>
+      <h2>Manage Stalls / Candidates</h2>
+      <table class="admin-table" id="candidates-table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Pointer</th>
+            <th>Stall Number</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-      <h3>Add/Edit Candidate</h3>
       <form id="candidate-form" onsubmit="return saveCandidate()">
         <input type="hidden" id="edit-index">
+        <label class="admin-form-label" for="candidate-name">Name</label>
         <input type="text" id="candidate-name" placeholder="Name" required>
-        <input type="text" id="candidate-pointer" placeholder="Pointer" required>
-        <button type="submit" class="btn">Save</button>
-        <button type="button" class="btn" onclick="resetForm()">Cancel</button>
+        <label class="admin-form-label" for="candidate-stall">Stall Number</label>
+        <input type="text" id="candidate-stall" placeholder="Stall Number" required>
+        <input type="submit" class="btn" value="Save">
+        <button type="button" class="btn-delete" onclick="resetForm()">Cancel</button>
       </form>
-    </div>
-    <!-- User Management -->
-    <div class="section">
-      <h2>Users</h2>
-      <button onclick="generateUser()" class="btn">Generate New User</button>
-      <table id="users-table">
+      <h2>Manage Users</h2>
+      <button onclick="generateUser()" class="btn" style="margin-bottom:8px;">Generate New User</button>
+      <table class="admin-table" id="users-table">
         <thead>
           <tr>
             <th>Username</th>
@@ -62,25 +166,45 @@
         <tbody></tbody>
       </table>
       <div id="user-message" class="success"></div>
-      <p class="small">User credentials are shown only here for admin. Passwords are not recoverable without backend.</p>
+      <div class="small" style="color:#999;font-size:0.96em;margin-top:4px;">User credentials are shown only here for admin. Passwords are not recoverable without backend.</div>
     </div>
   </div>
   <script>
-    // Change this password as needed
-    const ADMIN_PASSWORD = "YourAdminPassword123";
+    // Set your admin username and password here:
+    const ADMIN_USERNAME = "bibek";
+    const ADMIN_PASSWORD = "bibekggs";
 
-    // ---- Admin login ----
     function login() {
-      const entered = document.getElementById('admin-password').value;
-      if (entered === ADMIN_PASSWORD) {
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('admin-content').classList.remove('hidden');
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        document.getElementById('login-section').style.display = "none";
+        document.getElementById('admin-content').style.display = "";
         loadCandidates();
         loadUsers();
+        sessionStorage.setItem('adminLoggedIn', 'true');
       } else {
-        document.getElementById('login-error').innerText = "Incorrect password!";
+        document.getElementById('login-error').innerText = "Incorrect username or password!";
       }
     }
+
+    function logout() {
+      document.getElementById('admin-content').style.display = "none";
+      document.getElementById('login-section').style.display = "";
+      document.getElementById('admin-password').value = '';
+      document.getElementById('admin-username').value = '';
+      sessionStorage.removeItem('adminLoggedIn');
+    }
+
+    // Keep admin logged in only for session (reload will require login)
+    window.onload = function() {
+      if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+        document.getElementById('login-section').style.display = "none";
+        document.getElementById('admin-content').style.display = "";
+        loadCandidates();
+        loadUsers();
+      }
+    };
 
     // ---- Candidate Functions ----
     function getCandidates() {
@@ -97,10 +221,10 @@
         tbody.innerHTML += `
           <tr>
             <td>${c.name}</td>
-            <td>${c.pointer}</td>
+            <td>${c.stall}</td>
             <td>
               <button onclick="editCandidate(${i})" class="btn">Edit</button>
-              <button onclick="removeCandidate(${i})" class="btn">Delete</button>
+              <button onclick="removeCandidate(${i})" class="btn-delete">Delete</button>
             </td>
           </tr>
         `;
@@ -108,14 +232,14 @@
     }
     function saveCandidate() {
       const name = document.getElementById('candidate-name').value.trim();
-      const pointer = document.getElementById('candidate-pointer').value.trim();
+      const stall = document.getElementById('candidate-stall').value.trim();
       const editIdx = document.getElementById('edit-index').value;
       let candidates = getCandidates();
 
       if (editIdx === "") {
-        candidates.push({ name, pointer });
+        candidates.push({ name, stall });
       } else {
-        candidates[editIdx] = { name, pointer };
+        candidates[editIdx] = { name, stall };
       }
       setCandidates(candidates);
       loadCandidates();
@@ -126,7 +250,7 @@
       const candidates = getCandidates();
       document.getElementById('edit-index').value = index;
       document.getElementById('candidate-name').value = candidates[index].name;
-      document.getElementById('candidate-pointer').value = candidates[index].pointer;
+      document.getElementById('candidate-stall').value = candidates[index].stall;
     }
     function removeCandidate(index) {
       if (!confirm("Are you sure you want to delete this candidate?")) return;
@@ -139,7 +263,7 @@
     function resetForm() {
       document.getElementById('edit-index').value = "";
       document.getElementById('candidate-name').value = "";
-      document.getElementById('candidate-pointer').value = "";
+      document.getElementById('candidate-stall').value = "";
     }
 
     // ---- User Functions ----
@@ -171,7 +295,7 @@
             <td>${u.username}</td>
             <td>${u.password}</td>
             <td>
-              <button onclick="removeUser(${i})" class="btn">Delete</button>
+              <button onclick="removeUser(${i})" class="btn-delete">Delete</button>
             </td>
           </tr>
         `;
