@@ -1,1 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Science Expo Voting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; }
+    .hidden { display: none; }
+    #admin-content { margin-top: 2rem; }
+    table, th, td { border: 1px solid #aaa; border-collapse: collapse; padding: 0.5rem; }
+    th, td { text-align: left; }
+    .btn { margin: 0 0.25rem; }
+    .section { margin-top: 2rem; }
+    .success { color: green; }
+    .error { color: red; }
+    .small { font-size: 0.9em; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+  <div id="login-section">
+    <input type="password" id="admin-password" placeholder="Enter admin password">
+    <button onclick="login()">Login</button>
+    <p id="login-error" class="error"></p>
+  </div>
+  <div id="admin-content" class="hidden">
+    <!-- Candidate Management -->
+    <div class="section">
+      <h2>Candidates</h2>
+      <table id="candidates-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Pointer</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <h3>Add/Edit Candidate</h3>
+      <form id="candidate-form" onsubmit="return saveCandidate()">
+        <input type="hidden" id="edit-index">
+        <input type="text" id="candidate-name" placeholder="Name" required>
+        <input type="text" id="candidate-pointer" placeholder="Pointer" required>
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn" onclick="resetForm()">Cancel</button>
+      </form>
+    </div>
+    <!-- User Management -->
+    <div class="section">
+      <h2>Users</h2>
+      <button onclick="generateUser()" class="btn">Generate New User</button>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="user-message" class="success"></div>
+      <p class="small">User credentials are shown only here for admin. Passwords are not recoverable without backend.</p>
+    </div>
+  </div>
+  <script>
+    // Change this password as needed
+    const ADMIN_PASSWORD = "YourAdminPassword123";
 
+    // ---- Admin login ----
+    function login() {
+      const entered = document.getElementById('admin-password').value;
+      if (entered === ADMIN_PASSWORD) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('admin-content').classList.remove('hidden');
+        loadCandidates();
+        loadUsers();
+      } else {
+        document.getElementById('login-error').innerText = "Incorrect password!";
+      }
+    }
+
+    // ---- Candidate Functions ----
+    function getCandidates() {
+      return JSON.parse(localStorage.getItem('candidates') || '[]');
+    }
+    function setCandidates(candidates) {
+      localStorage.setItem('candidates', JSON.stringify(candidates));
+    }
+    function loadCandidates() {
+      const candidates = getCandidates();
+      const tbody = document.querySelector("#candidates-table tbody");
+      tbody.innerHTML = "";
+      candidates.forEach((c, i) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${c.name}</td>
+            <td>${c.pointer}</td>
+            <td>
+              <button onclick="editCandidate(${i})" class="btn">Edit</button>
+              <button onclick="removeCandidate(${i})" class="btn">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+    function saveCandidate() {
+      const name = document.getElementById('candidate-name').value.trim();
+      const pointer = document.getElementById('candidate-pointer').value.trim();
+      const editIdx = document.getElementById('edit-index').value;
+      let candidates = getCandidates();
+
+      if (editIdx === "") {
+        candidates.push({ name, pointer });
+      } else {
+        candidates[editIdx] = { name, pointer };
+      }
+      setCandidates(candidates);
+      loadCandidates();
+      resetForm();
+      return false;
+    }
+    function editCandidate(index) {
+      const candidates = getCandidates();
+      document.getElementById('edit-index').value = index;
+      document.getElementById('candidate-name').value = candidates[index].name;
+      document.getElementById('candidate-pointer').value = candidates[index].pointer;
+    }
+    function removeCandidate(index) {
+      if (!confirm("Are you sure you want to delete this candidate?")) return;
+      let candidates = getCandidates();
+      candidates.splice(index, 1);
+      setCandidates(candidates);
+      loadCandidates();
+      resetForm();
+    }
+    function resetForm() {
+      document.getElementById('edit-index').value = "";
+      document.getElementById('candidate-name').value = "";
+      document.getElementById('candidate-pointer').value = "";
+    }
+
+    // ---- User Functions ----
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('users') || '[]');
+    }
+    function setUsers(users) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+    function generateUser() {
+      let users = getUsers();
+      let username, password;
+      do {
+        username = "user" + (1000 + Math.floor(Math.random() * 9000));
+      } while (users.some(u => u.username === username));
+      password = Math.random().toString(36).slice(-8);
+      users.push({ username, password });
+      setUsers(users);
+      loadUsers();
+      showUserMessage(`Generated user: <b>${username}</b> Password: <b>${password}</b>`);
+    }
+    function loadUsers() {
+      const users = getUsers();
+      const tbody = document.querySelector("#users-table tbody");
+      tbody.innerHTML = "";
+      users.forEach((u, i) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${u.username}</td>
+            <td>${u.password}</td>
+            <td>
+              <button onclick="removeUser(${i})" class="btn">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+    function removeUser(index) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+      let users = getUsers();
+      users.splice(index, 1);
+      setUsers(users);
+      loadUsers();
+    }
+    function showUserMessage(msg) {
+      const div = document.getElementById('user-message');
+      div.innerHTML = msg;
+      setTimeout(() => { div.innerHTML = ""; }, 5000);
+    }
+  </script>
+</body>
+</html>
